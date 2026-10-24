@@ -57,4 +57,4 @@
 ### Langkah Instalasi
 1. Clone repository ini:
    ```bash
-   git clone https://github.com/p2-celsiana/HydroMate-Pengingat-Minum-Air
+   git clone https://github.com/p2-celsiana/hydromate.git
