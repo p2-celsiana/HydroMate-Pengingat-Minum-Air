@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0D9488">
+    <title>HydroMate - Smart Water Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+
+    <!-- ==========================================
+         1. SPLASH SCREEN (Logo)
+         ========================================== -->
+    <div id="splash-screen" class="app-screen splash-screen">
+        <div class="splash-content">
+            <div class="splash-logo-wrapper">
+                <div class="splash-logo">💧</div>
+                <div class="splash-ring"></div>
+            </div>
+            <h1 class="splash-title">HydroMate</h1>
+            <p class="splash-subtitle">Smart Hydration Tracker</p>
+            <div class="splash-loader">
+                <div class="loader-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         2. ONBOARDING SCREEN (Informasi)
+         ========================================== -->
+    <div id="onboarding-screen" class="app-screen onboarding-screen" style="display: none;">
+        <button class="btn-skip" onclick="skipOnboarding()">Lewati</button>
+        
+        <div class="onboarding-slider" id="onboardingSlider">
+            <div class="onboarding-slide active" data-index="0">
+                <div class="slide-illustration">
+                    <div class="illus-bg"></div>
+                    <div class="illus-icon">💧</div>
+                </div>
+                <h2 class="slide-title">Pantau Asupan Air</h2>
+                <p class="slide-desc">Catat setiap tegukan air, teh, kopi, atau jus. Hitung hidrasi efektifmu secara otomatis.</p>
+            </div>
+            <div class="onboarding-slide" data-index="1">
+                <div class="slide-illustration">
+                    <div class="illus-bg bg-2"></div>
+                    <div class="illus-icon">⏰</div>
+                </div>
+                <h2 class="slide-title">Pengingat Pintar</h2>
+                <p class="slide-desc">Atur jadwal pengingat yang sesuai dengan rutinitasmu. Tidak akan mengganggu saat tidur.</p>
+            </div>
+            <div class="onboarding-slide" data-index="2">
+                <div class="slide-illustration">
+                    <div class="illus-bg bg-3"></div>
+                    <div class="illus-icon">🏆</div>
+                </div>
+                <h2 class="slide-title">Raih Pencapaian</h2>
+                <p class="slide-desc">Kumpulkan badge, naikkan level, dan pertahankan streak harianmu untuk tubuh yang lebih sehat.</p>
+            </div>
+        </div>
+
+        <div class="onboarding-footer">
+            <div class="pagination-dots" id="paginationDots">
+                <span class="dot active"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+            <button class="btn-next" id="btnNextOnboard" onclick="nextOnboarding()">Lanjut</button>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         3. AUTH SCREEN (Login/Daftar)
+         ========================================== -->
+    <div id="auth-screen" class="app-screen auth-screen" style="display: none;">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h1 id="authTitle">Selamat Datang! 👋</h1>
+                <p id="authSubtitle">Masuk untuk melanjutkan perjalanan hidrasimu.</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Masuk</button>
+                <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Daftar</button>
+            </div>
+
+            <form id="authForm" onsubmit="handleAuth(event)">
+                <div class="input-group" id="nameGroup" style="display: none;">
+                    <label>Username</label>
+                    <input type="text" id="inputName" placeholder="username">
+                </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="inputEmail" placeholder="user@email.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="inputPassword" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn-auth-submit" id="btnAuthSubmit">Masuk</button>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- ==========================================
+         4. MAIN APP (Dashboard)
+         ========================================== -->
+    <div id="main-app" class="app-screen main-app" style="display: none;">
+        
+        <!-- Background Decoration -->
+        <div class="bg-decoration">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            <div class="blob blob-3"></div>
+        </div>
+        <canvas id="confettiCanvas"></canvas>
+
+        <!-- Top Header -->
+        <header class="app-header">
+            <div class="header-top">
+                <div class="user-profile" onclick="navigateTo('profile')">
+                    <div class="avatar">
+                        <span class="avatar-text" id="headerAvatar">C</span>
+                        <div class="avatar-status"></div>
+                    </div>
+                    <div class="user-info">
+                        <p class="greeting-sub" id="greetingSub">Selamat Pagi</p>
+                        <h1 class="greeting-main"><span id="userNameDisplay">Celsea</span> <span id="greetingEmoji">☀️</span></h1>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn notification-btn" onclick="openNotifications()">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge" id="notifBadge">2</span>
+                    </button>
+                    <button class="icon-btn theme-btn" onclick="toggleTheme()">
+                        <i class="fas fa-moon" id="themeIcon"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="info-bar">
+                <div class="info-item"><i class="fas fa-calendar-day"></i><span id="currentDate">21 Okt 2026</span></div>
+                <div class="info-divider"></div>
+                <div class="info-item"><i class="fas fa-fire-flame-curved"></i><span><strong id="streakDisplay">3</strong> hari streak</span></div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- PAGE: HOME -->
+            <section class="page active" id="page-home">
+                <div class="hero-card">
+                    <div class="hero-header">
+                        <div>
+                            <p class="hero-label">Progress Hari Ini</p>
+                            <h2 class="hero-title"><span id="progressPercent">0</span>%</h2>
+                        </div>
+                         <button class="btn-icon-circle" id="homeAlarmBtn" onclick="toggleAlarmFromHome()">
+        <i class="fas fa-clock" id="homeAlarmIcon"></i>
+    </button>
+                    </div>
+                    
+                    <div class="bottle-wrapper">
+    <!-- SVG BOTOL BARU (Lebih Pendek & Estetik) -->
+    <svg class="bottle-svg" viewBox="0 0 200 320" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <!-- Clip Path harus sama persis dengan bentuk botol -->
+            <clipPath id="bottleClip">
+                <path d="M70 20 L130 20 L130 40 C160 50 170 80 170 110 L170 270 C170 295 150 305 130 305 L70 305 C50 305 30 295 30 270 L30 110 C30 80 40 50 70 40 Z"/>
+            </clipPath>
+            <linearGradient id="waterGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#5EEAD4;stop-opacity:0.9"/>
+                <stop offset="100%" style="stop-color:#0D9488;stop-opacity:1"/>
+            </linearGradient>
+            <linearGradient id="bottleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:rgba(255,255,255,0.1)"/>
+                <stop offset="50%" style="stop-color:rgba(255,255,255,0.4)"/>
+                <stop offset="100%" style="stop-color:rgba(255,255,255,0.1)"/>
+            </linearGradient>
+        </defs>
+        
+        <!-- Bayangan di bawah botol -->
+        <ellipse cx="100" cy="315" rx="65" ry="6" fill="rgba(0,0,0,0.08)"/>
+        
+        <!-- Tutup Botol -->
+        <rect x="75" y="5" width="50" height="20" rx="4" fill="#0F766E"/>
+        <rect x="80" y="0" width="40" height="10" rx="3" fill="#0D9488"/>
+
+        <!-- Badan Botol -->
+        <path d="M70 20 L130 20 L130 40 C160 50 170 80 170 110 L170 270 C170 295 150 305 130 305 L70 305 C50 305 30 295 30 270 L30 110 C30 80 40 50 70 40 Z" 
+              fill="url(#bottleGradient)" stroke="#0D9488" stroke-width="3"/>
+              
+        <!-- Air di dalam botol (dengan Clip Path) -->
+        <g clip-path="url(#bottleClip)">
+            <rect class="water-body" id="waterBody" x="0" y="305" width="200" height="305" fill="url(#waterGradient)"/>
+            <!-- Gelembung udara -->
+            <circle class="bubble b1" cx="60" cy="300" r="4"/><circle class="bubble b2" cx="100" cy="300" r="6"/>
+            <circle class="bubble b3" cx="140" cy="300" r="3"/><circle class="bubble b4" cx="80" cy="300" r="5"/>
+            <circle class="bubble b5" cx="120" cy="300" r="4"/>
+        </g>
+        
+        <!-- Efek Kilau Kaca (Highlight) -->
+        <path d="M45 120 L45 260" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+    </svg>
+
+    <!-- Statistik di atas botol -->
+    <div class="bottle-overlay-stats">
+        <p class="overlay-label">Tercapai</p>
+        <h3 class="overlay-amount"><span id="consumedDisplay">0</span><span class="unit">ml</span></h3>
+        <p class="overlay-target">dari <span id="targetDisplay">2000</span> ml</p>
+    </div>
+</div>
+
+                    <div class="quick-stats">
+                        <div class="stat-chip"><i class="fas fa-glass-water"></i><div><p class="stat-value" id="glassesCount">0</p><p class="stat-label">Gelas</p></div></div>
+                        <div class="stat-chip"><i class="fas fa-droplet"></i><div><p class="stat-value" id="remainingDisplay">2000</p><p class="stat-label">Sisa (ml)</p></div></div>
+                        <div class="stat-chip"><i class="fas fa-clock"></i><div><p class="stat-value" id="lastDrinkTime">--:--</p><p class="stat-label">Terakhir</p></div></div>
+                    </div>
+                </div>
+
+
+
+                <div class="section-header"><h3 class="section-title">Aktivitas Hari Ini</h3><button class="btn-text" onclick="navigateTo('stats')">Lihat Semua</button></div>
+                <div class="timeline-card"><div id="todayTimeline" class="timeline-list"><div class="empty-timeline"><i class="fas fa-glass-empty"></i><p>Belum ada aktivitas minum hari ini</p><button class="btn-primary-small" onclick="openQuickAdd()">Mulai Tambah</button></div></div></div>
+            </section>
+
+            <!-- PAGE: STATS -->
+            <section class="page" id="page-stats">
+                <div class="page-header"><h2 class="page-title">Statistik</h2><p class="page-subtitle">Pantau progress mingguanmu</p></div>
+                <div class="chart-card">
+                    <div class="chart-header"><h3>Minggu Ini</h3><div class="chart-legend"><span class="legend-dot"></span><span id="weekAverage">0 ml</span> rata-rata</div></div>
+                    <div class="chart-container"><div class="chart-y-axis"><span>2000</span><span>1500</span><span>1000</span><span>500</span><span>0</span></div><div class="chart-bars" id="weeklyChart"></div></div>
+                </div>
+                <div class="summary-grid">
+                    <div class="summary-card"><div class="summary-icon total"><i class="fas fa-droplet"></i></div><div class="summary-info"><p class="summary-label">Total Minggu Ini</p><h3 class="summary-value" id="weekTotal">0 L</h3></div></div>
+                    <div class="summary-card"><div class="summary-icon best"><i class="fas fa-trophy"></i></div><div class="summary-info"><p class="summary-label">Hari Terbaik</p><h3 class="summary-value" id="bestDay">-</h3></div></div>
+                    <div class="summary-card"><div class="summary-icon average"><i class="fas fa-chart-line"></i></div><div class="summary-info"><p class="summary-label">Rata-rata Harian</p><h3 class="summary-value" id="dailyAverage">0 ml</h3></div></div>
+                    <div class="summary-card"><div class="summary-icon goal"><i class="fas fa-bullseye"></i></div><div class="summary-info"><p class="summary-label">Target Tercapai</p><h3 class="summary-value" id="goalDays">0/7 hari</h3></div></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header"><h3>Bulan Ini</h3><span class="chart-badge" id="monthlyPercent">0%</span></div>
+                    <div class="monthly-grid" id="monthlyGrid"></div>
+                </div>
+            </section>
+
+            <!-- PAGE: ACHIEVEMENTS -->
+            <section class="page" id="page-achievements">
+                <div class="page-header"><h2 class="page-title">Pencapaian</h2><p class="page-subtitle">Kumpulkan badge dengan konsisten minum air</p></div>
+                <div class="achievement-progress-card">
+                    <div class="achievement-header"><div><h3>Level Hidrasi</h3><p class="level-name" id="userLevel">Pemula 💧</p></div><div class="level-badge"><span id="userLevelNum">1</span></div></div>
+                    <div class="xp-bar"><div class="xp-fill" id="xpFill" style="width: 0%"></div></div>
+                    <p class="xp-text"><span id="currentXP">0</span> / <span id="nextLevelXP">100</span> XP</p>
+                </div>
+                <div class="section-header"><h3 class="section-title">Badge Koleksi</h3><span class="badge-count" id="badgeCount">0/12</span></div>
+                <div class="achievements-grid" id="achievementsGrid"></div>
+            </section>
+
+            <!-- PAGE: TIPS -->
+            <section class="page" id="page-tips">
+                <div class="page-header"><h2 class="page-title">Tips Hidrasi</h2><p class="page-subtitle">Pelajari cara menjaga tubuh tetap terhidrasi</p></div>
+                <div class="tip-featured" id="dailyTip">
+                    <div class="tip-badge">TIP HARI INI</div>
+                    <h3 id="tipTitle">Minum air setelah bangun tidur</h3>
+                    <p id="tipContent">Tubuhmu dehidrasi setelah 7-8 jam tidur. Minum 1-2 gelas air putih di pagi hari membantu mengaktifkan metabolisme dan membuang racun.</p>
+                    <button class="btn-tip-action" onclick="nextTip()"><i class="fas fa-arrow-right"></i> Tip Lainnya</button>
+                </div>
+                <div class="section-header"><h3 class="section-title">Semua Tips</h3></div>
+                <div class="tips-list" id="tipsList"></div>
+            </section>
+
+            <!-- PAGE: PROFILE -->
+            <section class="page" id="page-profile">
+                <div class="profile-header-card">
+                    <div class="profile-avatar-large"><span id="profileAvatarLarge">C</span></div>
+                    <h2 class="profile-name" id="profileNameDisplay">Celsea</h2>
+                    <p class="profile-joined">Bergabung sejak Okt 2026</p>
+                    <div class="profile-stats-row">
+                        <div class="profile-stat"><h3 id="profileTotalDays">0</h3><p>Hari Aktif</p></div>
+                        <div class="profile-stat"><h3 id="profileTotalWater">0</h3><p>Liter Total</p></div>
+                        <div class="profile-stat"><h3 id="profileBestStreak">0</h3><p>Best Streak</p></div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="section-title">Data Tubuh</h3>
+                    <div class="settings-card">
+                        <div class="setting-row"><div class="setting-info"><i class="fas fa-weight-scale"></i><div><p class="setting-label">Berat Badan</p><p class="setting-desc">Untuk kalkulasi target otomatis</p></div></div><div class="setting-control"><input type="number" id="weightInput" value="55" onchange="updateBodyStats()"><span class="setting-unit">kg</span></div></div>
+                        <div class="setting-row"><div class="setting-info"><i class="fas fa-ruler-vertical"></i><div><p class="setting-label">Tinggi Badan</p><p class="setting-desc">Untuk kalkulasi BMI</p></div></div><div class="setting-control"><input type="number" id="heightInput" value="160" onchange="updateBodyStats()"><span class="setting-unit">cm</span></div></div>
+                        <div class="setting-row"><div class="setting-info"><i class="fas fa-dumbbell"></i><div><p class="setting-label">Level Aktivitas</p><p class="setting-desc">Menyesuaikan kebutuhan air</p></div></div><div class="setting-control"><select id="activityLevel" onchange="updateBodyStats()"><option value="1">Sedentary (Duduk)</option><option value="1.2" selected>Ringan</option><option value="1.4">Sedang</option><option value="1.6">Aktif</option></select></div></div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="section-title">Target & Pengingat</h3>
+                    <div class="settings-card">
+                        <div class="setting-row"><div class="setting-info"><i class="fas fa-bullseye"></i><div><p class="setting-label">Target Harian</p><p class="setting-desc" id="autoTargetDesc">Otomatis: 1650 ml</p></div></div><div class="setting-control"><input type="number" id="manualTarget" value="2000" onchange="updateTarget()"><span class="setting-unit">ml</span></div></div>
+                        <div class="setting-row"><div class="setting-info"><i class="fas fa-bell"></i><div><p class="setting-label">Pengingat Aktif</p><p class="setting-desc" id="alarmDesc">Belum diatur</p></div></div><label class="toggle-switch"><input type="checkbox" id="alarmToggle" onchange="toggleAlarm()"><span class="toggle-slider"></span></label></div>
+                        <div class="setting-row" id="alarmScheduleRow" style="display:none">
+    <div class="setting-info">
+        <i class="fas fa-clock"></i>
+        <div>
+            <p class="setting-label">Interval Pengingat</p>
+            <p class="setting-desc">Setiap berapa menit</p>
+        </div>
+    </div>
+    <div class="setting-control">
+        <select id="intervalSelect" onchange="updateAlarmInterval()">
+            <option value="15">15 menit</option>
+            <option value="30">30 menit</option>
+            <option value="45">45 menit</option>
+            <option value="60" selected>1 jam</option>
+            <option value="90">1.5 jam</option>
+            <option value="120">2 jam</option>
+            <option value="custom">Custom...</option>
+        </select>
+    </div>
+</div>
+
+<!-- Input Custom Interval (muncul saat user pilih "Custom...") -->
+<div class="setting-row" id="customIntervalRow" style="display:none">
+    <div class="setting-info">
+        <i class="fas fa-sliders"></i>
+        <div>
+            <p class="setting-label">Interval Custom</p>
+            <p class="setting-desc">Masukkan menit (1-180)</p>
+        </div>
+    </div>
+    <div class="setting-control">
+        <input type="number" id="customIntervalInput" min="1" max="180" value="60" onchange="updateCustomInterval()" placeholder="60">
+        <span class="setting-unit">menit</span>
+    </div>
+</div>
+                        <div class="setting-row" id="alarmTimeRow" style="display:none"><div class="setting-info"><i class="fas fa-sun"></i><div><p class="setting-label">Jam Aktif</p><p class="setting-desc">Pengingat hanya aktif di jam ini</p></div></div><div class="time-range"><input type="time" id="alarmStart" value="07:00" onchange="updateAlarmSchedule()"><span>s/d</span><input type="time" id="alarmEnd" value="22:00" onchange="updateAlarmSchedule()"></div></div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 class="section-title">Akun & Lainnya</h3>
+                    <div class="settings-card">
+                        <button class="setting-action" onclick="openGuide()"><i class="fas fa-circle-question" style="color: var(--primary);"></i><span>Panduan Aplikasi</span><i class="fas fa-chevron-right"></i></button>
+                        <button class="setting-action" onclick="shareProgress()"><i class="fas fa-share-nodes"></i><span>Bagikan Progress</span><i class="fas fa-chevron-right"></i></button>
+                        <button class="setting-action" onclick="exportData()"><i class="fas fa-file-export"></i><span>Export Data</span><i class="fas fa-chevron-right"></i></button>
+                         <button class="setting-action warning" onclick="resetTodayProgress()"><i class="fas fa-rotate-right"></i><span>Reset Progress Hari Ini</span><i class="fas fa-chevron-right"></i></button>
+                        <button class="setting-action danger" onclick="logout()"><i class="fas fa-right-from-bracket"></i><span>Keluar Akun (Logout)</span><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                <div class="app-version"><p>HydroMate v2.0 • Made with ❤️ by celsiana</p></div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="navigateTo('home')" data-page="home"><div class="nav-icon"><i class="fas fa-house"></i></div><span class="nav-label">Beranda</span></button>
+            <button class="nav-item" onclick="navigateTo('stats')" data-page="stats"><div class="nav-icon"><i class="fas fa-chart-simple"></i></div><span class="nav-label">Statistik</span></button>
+            <button class="nav-item center-btn" onclick="openQuickAdd()" data-page="add"><div class="nav-icon-center"><i class="fas fa-plus"></i></div></button>
+            <button class="nav-item" onclick="navigateTo('achievements')" data-page="achievements"><div class="nav-icon"><i class="fas fa-trophy"></i></div><span class="nav-label">Pencapaian</span></button>
+            <button class="nav-item" onclick="navigateTo('profile')" data-page="profile"><div class="nav-icon"><i class="fas fa-user"></i></div><span class="nav-label">Profil</span></button>
+        </nav>
+
+        <!-- Bottom Sheet: Quick Add -->
+        <div class="bottom-sheet-overlay" id="quickAddSheet">
+            <div class="bottom-sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-header"><h3>Tambah Minuman</h3><button class="btn-close-sheet" onclick="closeQuickAdd()"><i class="fas fa-xmark"></i></button></div>
+                <div class="sheet-content">
+                    <div class="quick-amounts">
+                        <button class="amount-btn" onclick="addWaterAmount(100)"><span class="amount-value">100</span><span class="amount-label">ml</span></button>
+                        <button class="amount-btn" onclick="addWaterAmount(200)"><span class="amount-value">200</span><span class="amount-label">ml</span></button>
+                        <button class="amount-btn" onclick="addWaterAmount(250)"><span class="amount-value">250</span><span class="amount-label">ml</span></button>
+                        <button class="amount-btn" onclick="addWaterAmount(330)"><span class="amount-value">330</span><span class="amount-label">ml</span></button>
+                        <button class="amount-btn" onclick="addWaterAmount(500)"><span class="amount-value">500</span><span class="amount-label">ml</span></button>
+                        <button class="amount-btn" onclick="addWaterAmount(600)"><span class="amount-value">600</span><span class="amount-label">ml</span></button>
+                    </div>
+                    <div class="custom-amount-section">
+                        <label class="custom-label">Jumlah Custom</label>
+                        <div class="custom-input-wrapper"><input type="number" id="customAmount" placeholder="0" min="0"><span class="input-unit">ml</span></div>
+                        <button class="btn-add-custom" onclick="addCustomAmount()"><i class="fas fa-plus"></i> Tambah</button>
+                    </div>
+                    <div class="drink-type-selector">
+                        <label class="custom-label">Jenis Minuman</label>
+                        <div class="drink-type-options">
+                            <button class="type-option active" data-type="water" onclick="selectDrinkType('water', 1.0)"><i class="fas fa-droplet"></i><span>Air</span></button>
+                            <button class="type-option" data-type="tea" onclick="selectDrinkType('tea', 0.9)"><i class="fas fa-mug-hot"></i><span>Teh</span></button>
+                            <button class="type-option" data-type="coffee" onclick="selectDrinkType('coffee', 0.7)"><i class="fas fa-coffee"></i><span>Kopi</span></button>
+                            <button class="type-option" data-type="juice" onclick="selectDrinkType('juice', 0.85)"><i class="fas fa-wine-glass"></i><span>Jus</span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Tambahkan Pop-up Notifikasi di sini -->
+<!-- Overlay gelap untuk klik di luar -->
+<div id="notif-backdrop" onclick="closeNotifications()"></div>
+
+<!-- Pop-up Notifikasi Dropdown -->
+<div id="notif-modal">
+    <div class="notif-header">
+        <h3>Notifikasi</h3>
+        <button class="btn-close-notif" onclick="closeNotifications()"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="notif-list" id="notif-list">
+        <!-- Notifikasi akan muncul di sini -->
+    </div>
+</div>
+        <div class="toast-container" id="toastContainer"></div>
+<!-- Modal Panduan Aplikasi -->
+<div id="guide-backdrop" class="guide-backdrop" onclick="closeGuide()"></div>
+<div id="guide-modal" class="guide-modal">
+    <div class="guide-header">
+        <h3>📘 Cara Menggunakan</h3>
+        <button class="btn-close-sheet" onclick="closeGuide()"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="guide-content">
+        <div class="guide-item">
+            <div class="guide-icon" style="background: #E0F2FE; color: #0284C7;"><i class="fas fa-bottle-water"></i></div>
+            <div class="guide-text">
+                <h4>Botol Progress</h4>
+                <p>Visualisasi real-time asupan air harianmu. Air akan naik seiring kamu minum.</p>
+            </div>
+        </div>
+        <div class="guide-item">
+            <div class="guide-icon" style="background: #DCFCE7; color: #16A34A;"><i class="fas fa-circle-plus"></i></div>
+            <div class="guide-text">
+                <h4>Tombol Tambah (+)</h4>
+                <p>Klik untuk mencatat minuman. Bisa pilih jenis (Air, Kopi, Teh) dengan faktor hidrasi berbeda.</p>
+            </div>
+        </div>
+        <div class="guide-item">
+            <div class="guide-icon" style="background: #FEF3C7; color: #D97706;"><i class="fas fa-clock"></i></div>
+            <div class="guide-text">
+                <h4>Pengingat Pintar</h4>
+                <p>Klik ikon jam di atas botol untuk mengaktifkan alarm pengingat minum otomatis.</p>
+            </div>
+        </div>
+        <div class="guide-item">
+            <div class="guide-icon" style="background: #F3E8FF; color: #9333EA;"><i class="fas fa-chart-simple"></i></div>
+            <div class="guide-text">
+                <h4>Statistik & Level</h4>
+                <p>Pantau progress mingguan, kumpulkan badge, dan naikkan level hidrasimu di menu Pencapaian.</p>
+            </div>
+        </div>
+    </div>
+    <button class="btn-primary" onclick="closeGuide()" style="margin: 20px; width: calc(100% - 40px);">Mengerti!</button>
+</div>
+    </div>
+
+    <!-- Firebase SDK (Versi Compat agar mudah dipakai di Cordova) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+    <script src="cordova.js"></script>
+    <script src="js/index.js"></script>
+</body>
+</html>
